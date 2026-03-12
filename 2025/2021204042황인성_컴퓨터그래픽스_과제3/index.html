@@ -1,0 +1,338 @@
+<html>
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>The Aviator: The Game | Codrops</title>
+	<meta name="description"
+		content="Demo of the game: The Making of 'The Aviator': Animating a Basic 3D Scene with Three.js" />
+	<meta name="keywords"
+		content="three.js, webgl, tutorial, game, 3d, animation, airplane, web development, javascript" />
+	<meta name="author" content="Karim Maaloul for Codrops" />
+	<link rel="shortcut icon" href="favicon.ico">
+	<link href='https://fonts.googleapis.com/css?family=Playfair+Display:400,700,700italic' rel='stylesheet'
+		type='text/css'>
+	<link rel="stylesheet" type="text/css" href="css/demo.css" />
+	<link rel="stylesheet" type="text/css" href="css/game.css" />
+	<style>
+		.label {
+			margin-top: 10px;
+		}
+
+		.value {
+			font-weight: bold;
+		}
+
+		input[type=range] {
+			width: 200px;
+		}
+
+		.header,
+		.label,
+		.score,
+		.message {
+			z-index: 10;
+			pointer-events: auto;
+		}
+
+		#world canvas {
+			display: block;
+			position: absolute;
+			top: 0;
+			left: 0;
+			z-index: 0;
+		}
+
+		.bar-with-label {
+			position: fixed;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			font-family: 'Consolas', monospace;
+			font-size: 14px;
+			color: #00eaff;
+			text-shadow: 0 0 5px #00eaff;
+			pointer-events: none;
+			user-select: none;
+			z-index: 1000;
+		}
+
+		.fuel-container {
+			bottom: 20px;
+			right: 20px;
+		}
+
+		.fuel-bar {
+			position: relative;
+			width: 16px;
+			height: 120px;
+			background-color: rgba(0, 255, 100, 0.1);
+			border: 2px solid #00ff66;
+			border-radius: 8px;
+			overflow: hidden;
+			margin-top: 4px;
+		}
+
+		.fuel-fill {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(to top, #00ff66, #ccffcc);
+			position: absolute;
+			bottom: 0;
+			transition: height 0.2s ease-out;
+		}
+
+		/* Solar Bar - 위쪽 중앙 */
+		.solar-container {
+			top: 20px;
+			left: 50%;
+			transform: translateX(-50%);
+		}
+
+		.solar-bar {
+			position: relative;
+			width: 150px;
+			height: 12px;
+			background-color: rgba(255, 200, 0, 0.1);
+			border: 2px solid #ffaa00;
+			border-radius: 6px;
+			overflow: hidden;
+			margin-top: 4px;
+		}
+
+		.solar-fill {
+			position: absolute;
+			height: 100%;
+			width: 100%;
+			background: linear-gradient(to right, #ffaa00, #fff176);
+			position: absolute;
+			left: 0;
+			transition: width 0.2s ease-out;
+		}
+
+		.fuel-bar-container {
+			position: fixed;
+			right: 20px;
+			bottom: 20px;
+			width: 16px;
+			height: 120px;
+			border: 2px solid #00ff66;
+			background-color: rgba(0, 255, 100, 0.1);
+			border-radius: 8px;
+			overflow: hidden;
+		}
+
+		.fuel-bar-fill {
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			height: 100%;
+			/* 100% = 가득 참 */
+			background: linear-gradient(to top, #00ff66, #ccffcc);
+			transition: height 0.2s ease-out;
+		}
+
+
+		#hud {
+			position: fixed;
+			left: 10%;
+			top: 80%;
+			width: 150px;
+			height: 150px;
+			margin-left: -50px;
+			margin-top: -50px;
+			border: 2px solid rgba(0, 255, 255, 0.3);
+			border-radius: 50%;
+			overflow: hidden;
+			pointer-events: none;
+			z-index: 1000;
+		}
+
+		#speed-display {
+			position: absolute;
+			bottom: 13px;
+			left: 50%;
+			transform: translateX(-50%);
+			font-family: 'Consolas', monospace;
+			color: #00eaff;
+			font-size: 18px;
+			text-shadow: 0 0 6px #00eaff;
+			pointer-events: none;
+			user-select: none;
+			white-space: nowrap;
+			z-index: 1100;
+		}
+
+		#horizon {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			transform-origin: center;
+		}
+
+		.pitch-line {
+			position: absolute;
+			left: 0;
+			width: 100%;
+			height: 2px;
+			background-color: rgba(0, 255, 255, 0.6);
+		}
+
+		.pitch-line.center-line {
+			top: 50%;
+			background-color: rgba(255, 255, 255, 0.9);
+			/* 하얀색 또는 다른 강한 색 */
+			height: 2px;
+			box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+		}
+
+		#crosshair {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			color: #00ffff;
+			font-size: 20px;
+			font-family: monospace;
+			text-shadow: 0 0 4px #00ffff;
+		}
+
+		.altitude-container {
+			position: fixed;
+			left: 20px;
+			bottom: 20px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			font-family: 'Consolas', monospace;
+			color: #00eaff;
+			z-index: 1000;
+		}
+
+		.altitude-bar {
+			width: 20px;
+			height: 200px;
+			/* 전체 고도 범위 */
+			background-color: rgba(255, 255, 255, 0.1);
+			border: 1px solid #00eaff;
+			border-radius: 10px;
+			overflow: hidden;
+			position: relative;
+		}
+
+		.altitude-fill {
+			background: linear-gradient(to top, #00eaff, #6ed0fa);
+			width: 100%;
+			height: 0%;
+			transition: height 0.1s ease-out;
+			position: absolute;
+			bottom: 0;
+		}
+
+		.altitude-label {
+			margin-top: 8px;
+			font-size: 14px;
+		}
+
+		#success-message {
+			position: absolute;
+			top: 10%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background: rgba(0, 0, 0, 0.1);
+			color: rgb(0, 217, 255);
+			padding: 20px 40px;
+			font-size: 24px;
+			font-family: sans-serif;
+			border-radius: 12px;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.5s ease;
+			z-index: 999;
+		}
+
+		#success-message.show {
+			opacity: 1;
+		}
+
+		#distance-display {
+			position: fixed;
+			top: 20px;
+			left: 20px;
+			font-family: 'Consolas', monospace;
+			color: #00eaff;
+			font-size: 16px;
+			background-color: rgba(0, 0, 0, 0.4);
+			padding: 6px 12px;
+			border-radius: 8px;
+			z-index: 1000;
+		}
+	</style>
+
+
+	<script type="importmap">
+			{
+				"imports": {
+					"three": "./node_modules/three/build/three.module.js",
+                    "addons/": "./node_modules/three/examples/jsm/",
+					"GLTFLoader": "./node_modules/three/examples/jsm/loaders/GLTFLoader.js",
+					"three-mesh-bvh": "https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.7.3/build/index.module.js",
+					"WaterSphere": "./js/WaterSphere.js",
+					"Reflector":"./node_modules/three/examples/jsm/objects/Reflector.js"
+					
+				}
+			}
+		</script>
+	<script type="text/javascript" src="js/TweenMax.min.js"></script>
+	<script type="module" src="js/game.js"></script>
+	<!--[if IE]>
+		  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+</head>
+
+<body>
+	<div class="game-holder" id="gameHolder">
+		<div class="header">
+			<div id="distance-display">Distance: 0.0 km</div>
+			<div class="altitude-container">
+				<div class="altitude-bar">
+					<div class="altitude-fill" id="altitudeFill"></div>
+				</div>
+				<div class="altitude-label" id="altitudeText">Altitude: 0</div>
+			</div>
+			<div id="hud">
+				<div id="horizon">
+					<div class="pitch-line" style="top: 0%"></div>
+					<div class="pitch-line" style="top: 25%"></div>
+					<div class="pitch-line center-line"></div>
+					<div class="pitch-line" style="top: 75%"></div>
+					<div class="pitch-line" style="top: 100%"></div>
+				</div>
+				<div id="crosshair">+</div>
+				<div id="speed-display">0 km/h</div>
+			</div>
+			<div class="bar-with-label fuel-container">
+				<div class="fuel-label">🔋 Fuel</div>
+				<div class="fuel-bar">
+					<div class="fuel-fill" id="fuelFill"></div>
+				</div>
+			</div>
+			<div class="bar-with-label solar-container">
+				<div class="solar-label">☀️ Solar</div>
+				<div class="solar-bar">
+					<div class="solar-fill" id="solarFill"></div>
+				</div>
+			</div>
+		</div>
+		<div class="world" id="world"></div>
+		<div class="message message--replay" id="replayMessage">Click to Revive</div>
+		<div id="success-message">Congratulations! You've escaped the planet's orbit.</div>
+		<div class="message message--instructions" id="instructions">Fly over the wave<span>Chase the sun</span></div>
+	</div>
+	</div>
+
+</body>
+
+</html>
