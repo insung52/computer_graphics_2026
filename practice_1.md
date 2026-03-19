@@ -228,3 +228,5 @@ Scene Render
 **그래픽 프로그래밍 실무와 유사한 개발 경험**을 얻을 수 있다.
 
 ---
+
++ gi, animation, physics 

@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../TheAviator"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "TheAviator"
+	}
+}
