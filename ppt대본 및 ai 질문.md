@@ -18,7 +18,7 @@ google antigravity 검색해서 설치하시면 됩니다.
 
 antigravity 실행하면 이런 모습이고,
 
-antigravity 가 vscode 기반으로 제작되어서, 기존에 vscode 쓰셨으면 쉽게 다룰 수 있습니다.
+antigravity 가 vscode 기반으로 제작되어서, 기존에 vscode 사용하신적 있으시면 쉽게 다룰 수 있습니다.
 
 control + L 로 agent 대화창 열 수 있습니다.
 
@@ -27,6 +27,8 @@ control + L 로 agent 대화창 열 수 있습니다.
 ### 3. aviator clone
 
 이제 aviator 코드를 다운받아보겠습니다.
+
+git clone https://github.com/yakudoo/TheAviator.git
 
 해당 명령어 그대로 원하는 디렉토리에서 cmd 창 열고 입력하시면 됩니다.
 
